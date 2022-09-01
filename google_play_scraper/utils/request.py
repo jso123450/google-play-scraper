@@ -1,3 +1,4 @@
+from contextlib import closing
 from typing import Union
 
 from google_play_scraper.exceptions import NotFoundError, ExtraHTTPError
@@ -7,9 +8,10 @@ from urllib.request import urlopen, Request
 
 
 def _urlopen(obj):
+    data = None
     try:
-        with urlopen(obj) as resp:
-            return resp.read().decode("UTF-8")
+        with closing(urlopen(obj)) as resp:
+            data = resp.read().decode("UTF-8")
     except HTTPError as e:
         if e.code == 404:
             raise NotFoundError("App not found(404).")
@@ -17,6 +19,7 @@ def _urlopen(obj):
             raise ExtraHTTPError(
                 "App not found. Status code {} returned.".format(e.code)
             )
+    return data
 
 
 def post(url: str, data: Union[str, bytes], headers: dict) -> str:
