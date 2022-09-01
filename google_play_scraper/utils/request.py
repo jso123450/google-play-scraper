@@ -8,7 +8,8 @@ from urllib.request import urlopen, Request
 
 def _urlopen(obj):
     try:
-        resp = urlopen(obj)
+        with urlopen(obj) as resp:
+            return resp.read().decode("UTF-8")
     except HTTPError as e:
         if e.code == 404:
             raise NotFoundError("App not found(404).")
@@ -16,8 +17,6 @@ def _urlopen(obj):
             raise ExtraHTTPError(
                 "App not found. Status code {} returned.".format(e.code)
             )
-
-    return resp.read().decode("UTF-8")
 
 
 def post(url: str, data: Union[str, bytes], headers: dict) -> str:
